@@ -1,0 +1,248 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Readex+Pro:wght@400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --forest-950: #0e2016;
+  --forest-900: #173425;
+  --forest-800: #1f4330;
+  --olive-700: #47572b;
+  --olive-500: #6c7f42;
+  --earth-700: #62442f;
+  --earth-500: #8b6848;
+  --paper-100: #f2ecd8;
+  --paper-200: #e8dec4;
+  --sand-100: #cbb896;
+  --glow-gold: #f3df8a;
+  --glow-mint: #8ad6a5;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--forest-950);
+}
+
+body {
+  font-family: "Cairo", "Readex Pro", system-ui, sans-serif;
+  color: #e9eadf;
+  background:
+    linear-gradient(rgba(8, 21, 15, 0.5), rgba(8, 21, 15, 0.5)),
+    url("/backgroud.jpg") center center / cover no-repeat fixed;
+}
+
+@layer components {
+  .scout-page {
+    @apply mx-auto w-full max-w-xl px-4 pb-12 pt-5;
+    animation: fade-rise 0.45s ease-out;
+  }
+
+  .scout-panel {
+    border: 1px solid rgba(213, 197, 159, 0.35);
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(160deg, rgba(242, 236, 216, 0.95), rgba(222, 208, 176, 0.93)),
+      repeating-linear-gradient(
+        8deg,
+        rgba(122, 91, 64, 0.06) 0,
+        rgba(122, 91, 64, 0.06) 2px,
+        transparent 2px,
+        transparent 10px
+      );
+    color: #2f261b;
+    box-shadow:
+      0 22px 45px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 253, 240, 0.75);
+    @apply p-5 sm:p-6;
+  }
+
+  .scout-title {
+    @apply text-center text-3xl font-black tracking-tight;
+    color: var(--forest-900);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .scout-subtitle {
+    @apply mt-2 text-center text-sm font-bold;
+    color: #5d4b34;
+  }
+
+  .scout-wood-btn {
+    border: 1px solid rgba(87, 55, 32, 0.5);
+    border-radius: 999px;
+    color: #fff4de;
+    background:
+      linear-gradient(180deg, #8f6545, #6f4e37),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 220, 165, 0.12) 0,
+        rgba(255, 220, 165, 0.12) 3px,
+        transparent 3px,
+        transparent 10px
+      );
+    box-shadow:
+      0 7px 14px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 241, 220, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    @apply px-4 py-2 text-sm font-extrabold;
+  }
+
+  .scout-wood-btn:hover {
+    filter: brightness(1.05);
+  }
+
+  .scout-wood-btn:active {
+    transform: translateY(1px) scale(0.995);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 241, 220, 0.2);
+  }
+
+  .scout-field {
+    border: 1px solid rgba(110, 82, 56, 0.35);
+    background:
+      linear-gradient(180deg, rgba(250, 245, 227, 0.92), rgba(236, 226, 197, 0.95)),
+      repeating-linear-gradient(
+        0deg,
+        rgba(134, 104, 74, 0.08) 0,
+        rgba(134, 104, 74, 0.08) 1px,
+        transparent 1px,
+        transparent 30px
+      );
+    @apply w-full rounded-2xl px-4 py-3 text-base font-bold text-[#2b2218] outline-none;
+    box-shadow:
+      inset 0 1px 2px rgba(92, 69, 46, 0.22),
+      0 6px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .scout-field:focus {
+    border-color: rgba(81, 120, 74, 0.75);
+    box-shadow:
+      0 0 0 3px rgba(134, 196, 131, 0.25),
+      inset 0 1px 2px rgba(92, 69, 46, 0.2);
+  }
+
+  .scout-tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(211, 188, 137, 0.3);
+    border-radius: 1.25rem;
+    color: #f8f4df;
+    box-shadow:
+      0 10px 22px rgba(0, 0, 0, 0.36),
+      inset 0 1px 0 rgba(255, 245, 225, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    @apply flex min-h-[5.7rem] items-center gap-4 px-5 py-4 text-right;
+  }
+
+  .scout-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255, 246, 208, 0.12), transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.5s ease;
+  }
+
+  .scout-tile:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 16px 26px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(233, 215, 167, 0.2);
+  }
+
+  .scout-tile:hover::after {
+    transform: translateX(120%);
+  }
+
+  .scout-tile:active {
+    transform: translateY(1px);
+  }
+
+  .scout-tile-ask {
+    background: linear-gradient(140deg, #305d50, #1f433a 58%, #18372e);
+  }
+
+  .scout-tile-mission {
+    background: linear-gradient(140deg, #5f6635, #44522a 58%, #343f20);
+  }
+
+  .scout-tile-identify {
+    background: linear-gradient(140deg, #3b4f2d, #2a3c24 58%, #1f301f);
+  }
+
+  .scout-tile-score {
+    background: linear-gradient(140deg, #7a5c3d, #624930 58%, #4f3b28);
+  }
+
+  .scout-tile-camping {
+    background: linear-gradient(140deg, #2f513e, #274838 58%, #1e3b2e);
+  }
+
+  .scout-log-card {
+    border: 1px solid rgba(110, 82, 56, 0.32);
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, rgba(250, 243, 226, 0.95), rgba(233, 221, 190, 0.94)),
+      repeating-linear-gradient(
+        12deg,
+        rgba(104, 78, 51, 0.07) 0,
+        rgba(104, 78, 51, 0.07) 2px,
+        transparent 2px,
+        transparent 14px
+      );
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.14),
+      inset 0 1px 0 rgba(255, 251, 239, 0.75);
+    @apply p-4;
+  }
+
+  .scout-report {
+    border: 1px solid rgba(131, 201, 150, 0.3);
+    border-radius: 1rem;
+    background:
+      radial-gradient(circle at 90% 5%, rgba(164, 241, 190, 0.16), transparent 25%),
+      linear-gradient(160deg, rgba(19, 54, 40, 0.95), rgba(11, 40, 30, 0.96));
+    color: #e7f8eb;
+    box-shadow:
+      0 15px 24px rgba(0, 0, 0, 0.36),
+      0 0 18px rgba(112, 214, 150, 0.2);
+    @apply p-4;
+    animation: fade-rise 0.35s ease-out;
+  }
+
+  .scout-badge-btn {
+    border: 1px solid rgba(130, 205, 151, 0.35);
+    border-radius: 1rem;
+    color: #e8f9ee;
+    background: linear-gradient(140deg, #2f694a, #25523b);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3), 0 0 15px rgba(98, 190, 130, 0.2);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    @apply w-full py-4 text-lg font-black;
+  }
+
+  .scout-badge-btn:hover {
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.34), 0 0 18px rgba(98, 190, 130, 0.32);
+  }
+
+  .scout-badge-btn:active {
+    transform: scale(0.995);
+  }
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
