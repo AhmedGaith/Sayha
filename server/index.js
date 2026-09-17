@@ -383,6 +383,10 @@ confidence لازم عدد صحيح من 0 إلى 100.`;
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

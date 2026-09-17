@@ -3,6 +3,7 @@ import { useGame } from "../context/GameContext.jsx";
 import { compressImageToJpeg } from "../utils/compressImage.js";
 import { sounds } from "../utils/sounds.js";
 import { isOfflineFetchError, offlineFetchHint } from "../utils/networkError.js";
+import { apiUrl } from "../utils/api.js";
 
 /** Mission cards — complete with a photo checked by the server (vision). */
 export default function Missions({ onBack }) {
@@ -63,7 +64,7 @@ export default function Missions({ onBack }) {
     setBusy(true);
     setHint("قاعدين نشيّكو في التصويرة…");
     try {
-      const res = await fetch("/api/verify-mission", {
+      const res = await fetch(apiUrl("/api/verify-mission"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sounds } from "../utils/sounds.js";
 import { isOfflineFetchError, offlineFetchHint } from "../utils/networkError.js";
+import { apiUrl } from "../utils/api.js";
 
 /** Tunisia Arabic (BCP-47). Browser maps this to its best Arabic speech model. */
 const SPEECH_LANG = import.meta.env.VITE_SPEECH_LANG || "ar-TN";
@@ -84,7 +85,7 @@ export default function VoiceAssistant({ onBack }) {
     setStatus("loading");
     setErrorMsg("");
     try {
-      const res = await fetch("/api/ask-ai", {
+      const res = await fetch(apiUrl("/api/ask-ai"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),

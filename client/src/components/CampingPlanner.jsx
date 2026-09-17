@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { sounds } from "../utils/sounds.js";
 import { isOfflineFetchError } from "../utils/networkError.js";
+import { apiUrl } from "../utils/api.js";
 
 const OFFLINE_HINT_AR =
   "تعذّر الاتصال بالخادم. من مجلد المشروع شغّل npm run dev وانتظر حتى يعمل الموقع والخادم معاً، ثم افتح http://localhost:5173";
@@ -29,7 +30,7 @@ export default function CampingPlanner({ onBack }) {
     setBullets([]);
     sounds.tap();
     try {
-      const res = await fetch("/api/camping-plan", {
+      const res = await fetch(apiUrl("/api/camping-plan"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ location: loc, timePeriod: period }),

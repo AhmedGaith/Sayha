@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { compressImageToJpeg } from "../utils/compressImage.js";
 import { sounds } from "../utils/sounds.js";
 import { isOfflineFetchError, offlineFetchHint } from "../utils/networkError.js";
+import { apiUrl } from "../utils/api.js";
 
 function safetyClass(level) {
   if (level === "SAFE") return "bg-emerald-100 text-emerald-900 border-emerald-300";
@@ -69,7 +70,7 @@ export default function VisualIdentifier({ onBack }) {
     setResult(null);
 
     try {
-      const res = await fetch("/api/identify-item", {
+      const res = await fetch(apiUrl("/api/identify-item"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
