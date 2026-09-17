@@ -40,9 +40,9 @@ const groq = apiKey
     })
   : null;
 
-const chatModel = process.env.GROQ_MODEL?.trim() || "llama-3.3-70b-versatile";
+const chatModel = process.env.GROQ_MODEL?.trim() || "qwen/qwen3.8-27b";
 const visionModel =
-  process.env.GROQ_VISION_MODEL?.trim() || "meta-llama/llama-4-scout-17b-16e-instruct";
+  process.env.GROQ_VISION_MODEL?.trim() || "qwen/qwen3.8-27b";
 
 function parseJsonLoose(raw) {
   const t = String(raw || "").trim();
