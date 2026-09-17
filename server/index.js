@@ -75,11 +75,13 @@ function normalizeCampingBullets(parsed) {
   return out;
 }
 
-app.get("/api/health", (_req, res) => {
+const router = express.Router();
+
+router.get("/health", (_req, res) => {
   res.json({ ok: true, hasKey: Boolean(apiKey), provider: "groq" });
 });
 
-app.post("/api/ask-ai", async (req, res) => {
+router.post("/ask-ai", async (req, res) => {
   const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
 
   if (!text) {
@@ -117,7 +119,7 @@ app.post("/api/ask-ai", async (req, res) => {
   }
 });
 
-app.post("/api/camping-plan", async (req, res) => {
+router.post("/camping-plan", async (req, res) => {
   const location =
     typeof req.body?.location === "string" ? req.body.location.trim().slice(0, 500) : "";
   const timePeriod =
@@ -176,7 +178,7 @@ app.post("/api/camping-plan", async (req, res) => {
   }
 });
 
-app.post("/api/verify-mission", async (req, res) => {
+router.post("/verify-mission", async (req, res) => {
   const missionId = typeof req.body?.missionId === "string" ? req.body.missionId.trim() : "";
   const missionTarget =
     typeof req.body?.missionTarget === "string" ? req.body.missionTarget.trim().slice(0, 160) : "";
@@ -271,7 +273,7 @@ ${spec.checklist}
   }
 });
 
-app.post("/api/identify-item", async (req, res) => {
+router.post("/identify-item", async (req, res) => {
   const imageBase64 =
     typeof req.body?.imageBase64 === "string" ? req.body.imageBase64.trim() : "";
   const mimeType =
@@ -382,6 +384,9 @@ confidence لازم عدد صحيح من 0 إلى 100.`;
     });
   }
 });
+
+app.use("/api", router);
+app.use("/", router);
 
 if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
   app.listen(PORT, () => {
