@@ -388,10 +388,15 @@ confidence لازم عدد صحيح من 0 إلى 100.`;
 app.use("/api", router);
 app.use("/", router);
 
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
-  });
-}
+const distPath = path.join(__dirname, "..", "client", "dist");
+app.use(express.static(distPath));
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
+});
 
 export default app;
