@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import { rateLimit } from "express-rate-limit";
 import OpenAI from "openai";
 import { MISSION_VERIFY } from "./missionVerify.js";
 import { CAMPING_PLAN_SYSTEM_PROMPT } from "./campingPlanPrompt.js";
@@ -18,6 +19,9 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
+
+/** Railway (and most hosts) terminate TLS in front of the app. */
+app.set("trust proxy", 1);
 
 const SYSTEM_PROMPT = `إنت "صديق الكشّاف"، مرافق لطيف للصغار (حوالي 10 سنين) في الطبيعة.
 القوانين:
@@ -75,7 +79,25 @@ function normalizeCampingBullets(parsed) {
   return out;
 }
 
+function envPositiveInt(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isInteger(value) && value > 0 ? value : fallback;
+}
+
+const aiLimiter = rateLimit({
+  windowMs: envPositiveInt("RATE_LIMIT_WINDOW_MS", 15 * 60 * 1000),
+  limit: envPositiveInt("RATE_LIMIT_MAX", 60),
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  skip: (req) => req.path === "/health",
+  message: {
+    error: "طلبات كثيرة في وقت قصير. استنّى شوية وعاود.",
+  },
+});
+
 const router = express.Router();
+
+router.use(aiLimiter);
 
 router.get("/health", (_req, res) => {
   res.json({ ok: true, hasKey: Boolean(apiKey), provider: "groq" });
@@ -386,6 +408,9 @@ confidence لازم عدد صحيح من 0 إلى 100.`;
 });
 
 app.use("/api", router);
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "المسار المطلوب غير موجود." });
+});
 app.use("/", router);
 
 const distPath = path.join(__dirname, "..", "client", "dist");

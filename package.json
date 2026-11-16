@@ -3,18 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "description": "AI-powered outdoor scout game for kids — hackathon build",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "concurrently -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "install:all": "npm install",
     "build": "npm run build --prefix client",
-    "start": "npm run start --prefix server"
+    "start": "npm run start --prefix server",
+    "test": "node --test tests/"
   },
   "workspaces": [
     "client",
     "server"
   ],
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "vite": "^4.0.0"
+    "concurrently": "^9.1.2"
   }
 }
