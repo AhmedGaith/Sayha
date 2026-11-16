@@ -66,6 +66,20 @@ test("POST /api/identify-item requires an image", async () => {
   assert.equal(typeof body.error, "string");
 });
 
+test("POST /api/ask-ai returns a JSON 400 for malformed JSON", async () => {
+  const res = await fetch(`${baseUrl}/api/ask-ai`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{not valid json",
+  });
+  assert.equal(res.status, 400);
+  assert.match(res.headers.get("content-type") ?? "", /application\/json/);
+
+  const body = await res.json();
+  assert.equal(typeof body.error, "string");
+  assert.ok(body.error.length > 0);
+});
+
 test("unknown API routes return a JSON 404", async () => {
   const res = await fetch(`${baseUrl}/api/does-not-exist`);
   assert.equal(res.status, 404);

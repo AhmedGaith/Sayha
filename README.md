@@ -59,7 +59,7 @@ Voice input uses **Tunisia Arabic** by default (`ar-TN` for the Web Speech API).
 npm test
 ```
 
-The suite uses Node’s built-in test runner and starts the real server on a random port. It covers health, input validation, JSON 404s, rate limiting, and serving the built client. The built-client test is skipped until `npm run build` has been run once. No Groq key is required.
+The suite uses Node’s built-in test runner and starts the real server on a random port. It covers health, input validation, malformed JSON, JSON 404s, rate limiting, serving the built client, and the Vercel entry (`api/index.js` must import the app without opening a port). The built-client test is skipped until `npm run build` has been run once. No Groq key is required.
 
 ## Scripts
 
@@ -81,27 +81,49 @@ The suite uses Node’s built-in test runner and starts the real server on a ran
 | `GROQ_VISION_MODEL` | `server/.env` | Optional; default `qwen/qwen3.8-27b` (mission and identification photos) |
 | `RATE_LIMIT_MAX` | `server/.env` | Optional; AI requests allowed per IP per window, default `60` |
 | `RATE_LIMIT_WINDOW_MS` | `server/.env` | Optional; rate-limit window in ms, default `900000` (15 minutes) |
-| `PORT` | `server/.env` | Optional; default `3001`. Railway sets this automatically |
+| `PORT` | `server/.env` | Optional locally; default `3001`. Do not set it on Vercel |
 
 The Vite dev server proxies `/api` to the Express server. The server uses Groq’s **OpenAI-compatible** endpoint at `https://api.groq.com/openai/v1`.
 
 `qwen/qwen3.8-27b` is a Groq preview model (multimodal: text + vision). If Groq changes model IDs, pin new ones with `GROQ_MODEL` and `GROQ_VISION_MODEL`.
 
-## Deploy to Railway (single service)
+## Deploy to Vercel (single project)
 
-The app is one Node service: Express serves the API and the built React client.
+The app is one Vercel project with two parts:
+
+- The Vite client is built to `client/dist` and served from Vercel’s CDN.
+- The Express app in `server/index.js` is exported by `api/index.js` and runs as one Vercel Function for every `/api/*` request.
 
 1. Push this repo to GitHub.
-2. In Railway: **New Project → Deploy from GitHub repo → select this repo**. Keep the service **Root Directory** at the repository root (not `client/` or `server/`), so the root workspace installs and builds both packages.
-3. Railway’s Railpack builder installs with the root lockfile and runs `npm run build` / `npm start`. `railpack.json` forces the Node provider and start command so Railpack does not treat the app as a static-only Vite site, and `railway.json` declares the build command, start command, and healthcheck (`/api/health`). If Railway ignores `railway.json` during its config-as-code migration, the Railpack file still controls the start command — set the build command and healthcheck in the service settings if needed.
-4. Add a **`GROQ_API_KEY`** variable in the service’s **Variables** tab. Optionally add the model and rate-limit variables. Do not set `PORT`; Railway provides it.
+2. In Vercel: **Add New → Project → Import** the `AhmedGaith/Sayha` repo. Keep the **Root Directory** at the repository root (not `client/` or `server/`).
+3. Vercel reads `vercel.json`, so leave the detected build settings alone. They are:
+   - Install command: `npm ci`
+   - Build command: `npm run build`
+   - Output directory: `client/dist`
+4. Add **`GROQ_API_KEY`** under **Settings → Environment Variables** for Production (and Preview if you want preview AI). Optionally add `GROQ_MODEL`, `GROQ_VISION_MODEL`, `RATE_LIMIT_MAX`, and `RATE_LIMIT_WINDOW_MS`. Do **not** set `PORT`; Vercel handles the function port.
 5. Deploy and open the generated domain. Check `https://<your-domain>/api/health` — it should return `{"ok":true,"provider":"groq","hasKey":true}`.
 
-Speech recognition works on Railway’s HTTPS domain. Client and API share the same origin, so no `VITE_API_URL` is needed.
+`vercel.json` sends `/api/*` to the single Express function while preserving the original path, and sends other routes to `/index.html` so SPA deep links work. `express.static()` is ignored on Vercel; the built client is served directly from `client/dist`.
+
+Speech recognition works on Vercel’s HTTPS domain. Client and API share the same origin, so no `VITE_API_URL` is needed.
+
+You can also deploy from the CLI after `npx vercel link`:
+
+```bash
+npx vercel --prod
+```
+
+### Mission photos on Vercel
+
+Vercel Functions accept request bodies up to **4.5 MB** ([limit](https://vercel.com/docs/functions/limitations#request-body-size)). The app compresses photos in the browser to a JPEG with a maximum width of 1280 px before sending, which normally keeps the JSON payload well under that limit. If a photo is unusually large, take a closer/simpler photo. Groq also limits base64 image payload size (see [Groq vision docs](https://console.groq.com/docs/vision)).
+
+### Rate limiting on Vercel
+
+The in-memory rate limiter is per function instance, so it is best-effort rather than a shared global quota. For strict multi-instance limits, use a shared store (for example Upstash Redis) or Vercel Firewall rules.
 
 ### Mission photos
 
-`POST /api/verify-mission` accepts JSON: `{ "missionId": "green", "missionTarget": "Find something green", "imageBase64": "<jpeg base64, no data: prefix>", "mimeType": "image/jpeg" }` and returns `{ "pass": true|false, "message": "..." }`. The app sends the selected mission target text and the uploaded photo together so the vision model checks if they match before points are awarded. The app resizes the image in the browser before sending. Groq limits base64 image payload size (see [Groq vision docs](https://console.groq.com/docs/vision)); the client compresses images to help stay under limits.
+`POST /api/verify-mission` accepts JSON: `{ "missionId": "green", "missionTarget": "Find something green", "imageBase64": "<jpeg base64, no data: prefix>", "mimeType": "image/jpeg" }` and returns `{ "pass": true|false, "message": "..." }`. The app sends the selected mission target text and the uploaded photo together so the vision model checks if they match before points are awarded. The app resizes the image in the browser before sending.
 
 ### Visual identification photos
 
@@ -123,8 +145,9 @@ ai-scout-adventure/
 ├── package.json          # root workspaces + dev/build/start/test scripts
 ├── package-lock.json     # single lockfile for all workspaces
 ├── .nvmrc                # Node 22
-├── railway.json          # Railway build/start/healthcheck
-├── railpack.json         # Railpack: Node provider + npm start
+├── vercel.json           # Vercel build, API function, and SPA rewrites
+├── api/
+│   └── index.js          # Vercel Function entry: exports the Express app
 ├── README.md
 ├── client/               # Vite + React + Tailwind
 │   ├── package.json

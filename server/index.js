@@ -20,7 +20,7 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
-/** Railway (and most hosts) terminate TLS in front of the app. */
+/** Vercel and most hosts terminate TLS in front of the app. */
 app.set("trust proxy", 1);
 
 const SYSTEM_PROMPT = `إنت "صديق الكشّاف"، مرافق لطيف للصغار (حوالي 10 سنين) في الطبيعة.
@@ -420,8 +420,32 @@ app.get("*", (req, res, next) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
+app.use((err, _req, res, next) => {
+  if (res.headersSent) return next(err);
+
+  if (err?.type === "entity.parse.failed") {
+    return res.status(400).json({ error: "الـ JSON موش صحيح. تحقّق من الصيغة." });
+  }
+
+  if (err?.type === "entity.too.large") {
+    return res.status(413).json({ error: "الطلب كبير برشا. جرّب ملف أصغر." });
+  }
+
+  console.error("Unhandled server error:", err);
+  res.status(500).json({ error: "صار مشكل في السيرفر. عاود بعد شوية." });
 });
+
+/**
+ * Local / standalone entry point. Vercel imports this file through api/index.js,
+ * so it must not open a port there.
+ */
+const isDirectRun =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`AI Scout server (Groq) listening on http://localhost:${PORT}`);
+  });
+}
 
 export default app;

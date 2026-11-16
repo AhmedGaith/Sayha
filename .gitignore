@@ -7,3 +7,4 @@ dist
 # npm workspaces use the single root package-lock.json
 client/package-lock.json
 server/package-lock.json
+.vercel
