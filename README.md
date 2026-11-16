@@ -92,7 +92,7 @@ The Vite dev server proxies `/api` to the Express server. The server uses Groq�
 The app is one Node service: Express serves the API and the built React client.
 
 1. Push this repo to GitHub.
-2. In Railway: **New Project → Deploy from GitHub repo → select this repo**.
+2. In Railway: **New Project → Deploy from GitHub repo → select this repo**. Keep the service **Root Directory** at the repository root (not `client/` or `server/`), so the root workspace installs and builds both packages.
 3. Railway’s Railpack builder installs with the root lockfile and runs `npm run build` / `npm start`. `railpack.json` forces the Node provider and start command so Railpack does not treat the app as a static-only Vite site, and `railway.json` declares the build command, start command, and healthcheck (`/api/health`). If Railway ignores `railway.json` during its config-as-code migration, the Railpack file still controls the start command — set the build command and healthcheck in the service settings if needed.
 4. Add a **`GROQ_API_KEY`** variable in the service’s **Variables** tab. Optionally add the model and rate-limit variables. Do not set `PORT`; Railway provides it.
 5. Deploy and open the generated domain. Check `https://<your-domain>/api/health` — it should return `{"ok":true,"provider":"groq","hasKey":true}`.
